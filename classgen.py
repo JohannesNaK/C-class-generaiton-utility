@@ -1,11 +1,14 @@
 import os
+import shutil
 import sys
 srcPath = "src"
 includePath = "include"
 path = os.path.realpath(__file__)
 
-def obtainPath(type:str,args:[str]):
+def obtainFilePath(type:str,args:[str]):
     return type+os.sep + args[0]+os.sep + args[1]
+def obtainModPath(type:str, modName):
+    return type+os.sep+modName
 def create(target:str):
     print("target is " + target)
     if not os.sep in target:
@@ -25,8 +28,8 @@ def main(args:[str]):
         print("UNKNOWN ARGUMENTS: \n classgen <c/d> <module path> <file>")
         return
     fileArgs = [args[2],args[3]]
-    cppPath =  obtainPath(srcPath,fileArgs) + ".cpp"
-    hPath =  obtainPath(includePath,fileArgs) + ".h"
+    cppPath =  obtainFilePath(srcPath,fileArgs) + ".cpp"
+    hPath =  obtainFilePath(includePath,fileArgs) + ".h"
     if args[1].lower() == "c":
         try:
             create(cppPath)
@@ -34,6 +37,10 @@ def main(args:[str]):
         except FileExistsError:
             print("File " + str(fileArgs) + " already exists")
     elif args[1].lower() == "d":
+        if fileArgs[1] == "*":
+            shutil.rmtree(obtainModPath(srcPath,fileArgs[0]))
+            shutil.rmtree(obtainModPath(includePath,fileArgs[0]))
+            return  
         try:
             os.remove(cppPath)
             os.remove(hPath)
