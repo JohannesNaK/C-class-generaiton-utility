@@ -9,7 +9,7 @@ def obtainFilePath(type:str,args:[str]):
     return type+os.sep + args[0]+os.sep + args[1]
 def obtainModPath(type:str, modName):
     return type+os.sep+modName
-def create(target:str):
+def create(target:str, content:str):
     print("target is " + target)
     if not os.sep in target:
         open(target, "x")   
@@ -21,7 +21,8 @@ def create(target:str):
             os.makedirs(os.sep.join(dirs))
         except FileExistsError:
             pass
-        open(target, "x")
+        with open(target, "w") as file:
+            file.write(content)
 def main(args:[str]):
     #module <command> <module path> <file>
     if len(args) != 4:
@@ -32,8 +33,11 @@ def main(args:[str]):
     hPath =  obtainFilePath(includePath,fileArgs) + ".h"
     if args[1].lower() == "c":
         try:
-            create(cppPath)
-            create(hPath)
+            name = fileArgs[1][0].upper() + fileArgs[1][1:].lower()
+            capName = name.upper()
+            create(cppPath,"#include \"" + name + "\"\n")
+            create(hPath,"#ifndef " + capName +  "_H\n#define " + capName + "_H\n"
+                   + "\n"*4+"class " + name +"{"+"\n"*4+"};"+"\n"*4 + "#endif")
         except FileExistsError:
             print("File " + str(fileArgs) + " already exists")
     elif args[1].lower() == "d":
